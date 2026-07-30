@@ -1,0 +1,6 @@
+Third-Party Notices
+===================
+
+Release bundles generate this file from the locked dependency graph and the
+exact external payloads selected for that build. A source-only checkout does
+not contain a release bundle.

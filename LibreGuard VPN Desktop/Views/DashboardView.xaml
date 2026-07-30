@@ -1,0 +1,480 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:LibreGuard_VPN_Desktop.Converters"
+             xmlns:controls="clr-namespace:LibreGuard_VPN_Desktop.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800" d:DesignHeight="700">
+
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
+        <converters:EqualityToBoolConverter x:Key="EqConverter"/>
+        <converters:EqualityToVisibilityConverter x:Key="EqualToVis"/>
+        <converters:ConnectionStatusToBrushConverter x:Key="StatusToBrush"/>
+        <converters:PlanToStringConverter x:Key="PlanToString"/>
+        <converters:DoubleToStarGridLengthConverter x:Key="StarConverter"/>
+    </UserControl.Resources>
+
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24">
+
+            <!-- ??? Header ??? -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Dashboard" Style="{StaticResource HeadingXLStyle}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Manage your VPN connection and monitor activity"
+                               Style="{StaticResource MutedTextStyle}"/>
+                </StackPanel>
+                <!-- Plan badge -->
+                <Border Grid.Column="1" CornerRadius="16" Padding="16,8"
+                        Background="{DynamicResource SecondaryBrush}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Plan, Converter={StaticResource PlanToString}}" FontSize="14" FontWeight="Medium"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                </Border>
+
+            </Grid>
+
+            <!-- ??? Main Grid: Left 2/3 + Right 1/3 ??? -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT COLUMN -->
+                <StackPanel Grid.Column="0">
+
+                    <!-- Selected Server (when disconnected and selection exists) -->
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,16"
+                            Visibility="{Binding IsServerSelected, Converter={StaticResource BoolToVis}}">
+                           <Grid>
+                               <Grid.ColumnDefinitions>
+                                   <ColumnDefinition Width="Auto"/>
+                                   <ColumnDefinition Width="*"/>
+                                   <ColumnDefinition Width="Auto"/>
+                               </Grid.ColumnDefinitions>
+                               
+                               <Border Style="{StaticResource IconBadgeStyle}" Width="56" Height="56" CornerRadius="12">
+                                   <Grid>
+                                       <!-- Fallback Emoji -->
+                                       <TextBlock Text="{Binding SelectedServer.Flag}" FontSize="28" 
+                                                  FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{Binding SelectedServer.FlagUrl, Converter={StaticResource NullToVisibility}, ConverterParameter=Inverted}"/>
+                                       
+                                       <!-- Flag Image -->
+                                       <Image Source="{Binding SelectedServer.FlagUrl}" Width="40" Height="30" Stretch="UniformToFill"
+                                              RenderOptions.BitmapScalingMode="HighQuality"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Visibility="{Binding SelectedServer.FlagUrl, Converter={StaticResource NullToVisibility}}">
+                                           <Image.Clip>
+                                               <RectangleGeometry Rect="0,0,40,30" RadiusX="4" RadiusY="4"/>
+                                           </Image.Clip>
+                                       </Image>
+                                   </Grid>
+                               </Border>
+
+                               <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                   <TextBlock Text="{Binding SelectedServer.City}" Style="{StaticResource HeadingStyle}" FontSize="16"/>
+                                   <TextBlock Text="{Binding SelectedServer.Country}"
+                                              Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0"/>
+                               </StackPanel>
+
+                               <Button Grid.Column="2" Style="{StaticResource GhostButtonStyle}"
+                                       Command="{Binding DiscardSelectionCommand}"
+                                       VerticalAlignment="Top" Padding="8">
+                                   <TextBlock Text="&#x2715;" FontSize="14" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                               </Button>
+                           </Grid>
+                    </Border>
+
+
+                    <!-- Quick Connect button (visible when disconnected AND no server selected) -->
+                    <Button Command="{Binding QuickConnectCommand}"
+                            Margin="0,0,0,16" Padding="0"
+                            HorizontalContentAlignment="Stretch">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Status, Converter={StaticResource EqConverter}, ConverterParameter=Disconnected}" Value="True"/>
+                                            <Condition Binding="{Binding IsServerSelected}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Border Style="{StaticResource CardStyle}" Padding="16" Cursor="Hand">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource IconBadgeStyle}" Width="56" Height="56" CornerRadius="12">
+                                    <TextBlock Text="&#x26A1;" FontSize="28" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Quick Connect" Style="{StaticResource HeadingStyle}" FontSize="16"/>
+                                    <TextBlock Text="Automatically connect to the fastest available server"
+                                               Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="2" Text="&#x27A4;" FontSize="20" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </Button>
+
+                    <!-- ??? Connection Status Card ??? -->
+                    <Border Style="{StaticResource CardLargeStyle}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <Border Background="Transparent">
+                                <StackPanel>
+                                    <!-- Animated connection hero -->
+                                    <controls:VpnConnectionShieldControl Width="188" Height="188"
+                                                                          HorizontalAlignment="Center"
+                                                                          Margin="0,0,0,16"
+                                                                          Status="{Binding Status}"
+                                                                          Command="{Binding ToggleConnectionCommand}"
+                                                                          Cursor="Hand"/>
+
+                                    <!-- Status text -->
+                                    <TextBlock Text="{Binding StatusText}"
+                                               FontSize="28" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                               Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}"
+                                               Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding StatusDescription}"
+                                               FontSize="15" HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,0,0,12"/>
+
+                                    <!-- Connection progress -->
+                                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,16"
+                                                Visibility="{Binding IsConnectionTransitionActive, Converter={StaticResource BoolToVis}}">
+                                        <controls:VpnConnectionProgressBarControl Width="224" Height="10"
+                                                                                  Status="{Binding Status}"/>
+                                        <TextBlock Text="{Binding ConnectionProgressText}"
+                                                   FontSize="12" FontWeight="Medium"
+                                                   Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,6,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Error message (visible on Error status) -->
+                                    <Border CornerRadius="8" Padding="12" Margin="0,0,0,16"
+                                            Background="#1AEF4444"
+                                            BorderBrush="#FFEF4444" BorderThickness="1"
+                                            Visibility="{Binding Status, Converter={StaticResource EqualToVis}, ConverterParameter=Error}">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <TextBlock Text="&#x26A0;&#xFE0F;" FontSize="14" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                                       Foreground="#FFEF4444" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding LastErrorMessage}" FontSize="13"
+                                                       Foreground="#FFEF4444" TextWrapping="Wrap" MaxWidth="400"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Reconnecting indicator -->
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16"
+                                                Visibility="{Binding Status, Converter={StaticResource EqualToVis}, ConverterParameter=Reconnecting}">
+                                        <TextBlock Text="&#x1F504;" FontSize="14" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Attempting to reconnect..." FontSize="13"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Connect/Disconnect button -->
+                            <Button Style="{StaticResource PrimaryButtonLargeStyle}"
+                                    HorizontalAlignment="Center"
+                                    Command="{Binding ToggleConnectionCommand}">
+                                <TextBlock Text="{Binding ConnectButtonText}"
+                                           FontSize="18" FontWeight="Medium"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ??? Connection Details (when connected) ??? -->
+                    <Grid Visibility="{Binding Status, Converter={StaticResource EqualToVis}, ConverterParameter=Connected}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="16"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- IP Addresses -->
+                        <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="&#x1F310;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="IP Addresses" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <TextBlock Text="Your IP" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding UserIpAddress}" FontSize="14"
+                                           Foreground="{DynamicResource ForegroundBrush}" Opacity="0.5"
+                                           TextDecorations="Strikethrough" Margin="0,0,0,12"/>
+                                <TextBlock Text="VPN IP" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding VpnIpAddress}" FontSize="14"
+                                           Foreground="{DynamicResource PrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Server Location -->
+                        <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="&#x1F30D;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Server Location" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <TextBlock Text="City" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,4"/>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Fallback Emoji -->
+                                    <TextBlock Text="{Binding ConnectedFlag}" FontSize="14" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                               Visibility="{Binding ConnectedFlagUrl, Converter={StaticResource NullToVisibility}, ConverterParameter=Inverted}"
+                                               VerticalAlignment="Center" Margin="0,0,4,0"/>
+
+                                    <!-- Remote Image -->
+                                    <Image Source="{Binding ConnectedFlagUrl}" Width="20" Height="15" Stretch="UniformToFill"
+                                           RenderOptions.BitmapScalingMode="HighQuality"
+                                           VerticalAlignment="Center" Margin="0,0,4,0"
+                                           Visibility="{Binding ConnectedFlagUrl, Converter={StaticResource NullToVisibility}}">
+                                        <Image.Clip>
+                                            <RectangleGeometry Rect="0,0,20,15" RadiusX="2" RadiusY="2"/>
+                                        </Image.Clip>
+                                    </Image>
+                                    
+                                    <TextBlock Grid.Column="1" FontSize="14" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center">
+                                        <Run Text="{Binding ConnectedCity}"/><Run Text=", "/><Run Text="{Binding ConnectedCountry}"/>
+                                    </TextBlock>
+                                </Grid>
+                                <TextBlock Text="Server" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding ConnectedServerName}" FontSize="14"
+                                           Foreground="{DynamicResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Protection Status -->
+                        <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
+                                Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="&#x1F6E1;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Protection Active" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <UniformGrid Columns="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x2705;" FontSize="13" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="IPv6 Blocked" Style="{StaticResource SmallMutedTextStyle}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x2705;" FontSize="13" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="WebRTC Safe" Style="{StaticResource SmallMutedTextStyle}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+
+                <!-- RIGHT COLUMN -->
+                <StackPanel Grid.Column="2">
+
+                    <!-- Connected stats (visible when connected) -->
+                    <StackPanel Visibility="{Binding Status, Converter={StaticResource EqualToVis}, ConverterParameter=Connected}">
+                        <!-- Duration -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="&#x23F1;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="Connection Time" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding ConnectionTime}"
+                                           FontSize="24" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Speed -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <TextBlock Text="&#x1F4F6;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="Network Speed" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <!-- Download -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x2B07;" FontSize="14" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Download" Style="{StaticResource SmallMutedTextStyle}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" FontSize="14" FontWeight="Medium"
+                                               Text="{Binding DownloadSpeed, StringFormat={}{0:F1} Mbps}"/>
+                                </Grid>
+                                <!-- Upload -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x2B06;" FontSize="14" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Upload" Style="{StaticResource SmallMutedTextStyle}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" FontSize="14" FontWeight="Medium"
+                                               Text="{Binding UploadSpeed, StringFormat={}{0:F1} Mbps}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Session Data -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="&#x1F4CA;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="Session Data" Style="{StaticResource SubheadingStyle}"/>
+                                </StackPanel>
+                                <TextBlock FontSize="24" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryBrush}"
+                                           Text="{Binding SessionDataMb, StringFormat={}{0:F1} MB}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Monthly Data Usage -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Monthly Data Usage" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,16"/>
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Used" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource ForegroundBrush}">
+                                    <Run Text="{Binding MonthlyDataUsedText, Mode=OneWay}"/>
+                                    <Run Text=" / "/>
+                                    <Run Text="{Binding MonthlyDataLimitText, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,12"
+                                  Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="This session" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium"
+                                           Text="{Binding SessionDataText, Mode=OneWay}"
+                                           Foreground="{DynamicResource PrimaryBrush}"/>
+                            </Grid>
+
+                            <!-- Progress bar -->
+                            <Border Height="12" Margin="0,0,0,12"
+                                    CornerRadius="6"
+                                    Background="{DynamicResource SecondaryBrush}"
+                                    Visibility="{Binding IsDataLimited, Converter={StaticResource BoolToVis}}"
+                                    SnapsToDevicePixels="True">
+                                <Grid ClipToBounds="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{Binding PreviousMonthlyUsagePercent, Converter={StaticResource StarConverter}, Mode=OneWay}"/>
+                                        <ColumnDefinition Width="{Binding CurrentSessionUsagePercent, Converter={StaticResource StarConverter}, Mode=OneWay}"/>
+                                        <ColumnDefinition Width="{Binding RemainingUsagePercent, Converter={StaticResource StarConverter}, Mode=OneWay}"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#FF94A3B8"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRunningLow}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <Border Grid.Column="1">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRunningLow}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Running low warning message -->
+                            <TextBlock Text="Running low - Upgrade to Pro for unlimited"
+                                     Style="{StaticResource SmallMutedTextStyle}"
+                                     Foreground="{DynamicResource WarningBrush}"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,0,0,12"
+                                     Visibility="{Binding IsRunningLow, Converter={StaticResource BoolToVis}}"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock FontSize="13" 
+                                           Visibility="{Binding IsDataLimited, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRunningLow}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="{Binding MonthlyUsagePercent, StringFormat={}{0:F1}% used, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Grid.Column="1" FontSize="13" Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Text="{Binding BandwidthFooterText, Mode=OneWay}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

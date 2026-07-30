@@ -1,0 +1,12 @@
+using System.Windows.Controls;
+using LibreGuard_VPN_Desktop.ViewModels;
+
+namespace LibreGuard_VPN_Desktop.Views;
+
+public partial class TwoFactorSetupModalView : UserControl
+{
+    public TwoFactorSetupModalView()
+    {
+        InitializeComponent();
+    }
+}

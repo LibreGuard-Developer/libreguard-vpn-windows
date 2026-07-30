@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>LibreGuard.SetupHelper</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>..\LibreGuard VPN Desktop\Assets\Images\LibreGuard_logo_cropped_V3.ico</ApplicationIcon>
+  </PropertyGroup>
+
+</Project>

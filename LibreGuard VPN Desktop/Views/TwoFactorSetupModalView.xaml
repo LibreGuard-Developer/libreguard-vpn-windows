@@ -1,0 +1,230 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.TwoFactorSetupModalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="500" d:DesignHeight="700">
+
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="32" MaxWidth="400">
+
+                <!-- Header -->
+                <TextBlock Text="Set Up Two-Factor Authentication" 
+                           Style="{StaticResource HeadingStyle}" 
+                           Margin="0,0,0,8"/>
+                <TextBlock Text="Protect your account with an extra layer of security"
+                           Style="{StaticResource MutedTextStyle}" 
+                           Margin="0,0,0,24"/>
+
+                <!-- Step 1: QR Code -->
+                <TextBlock Text="Step 1: Scan QR Code" 
+                           Style="{StaticResource SubheadingStyle}" 
+                           Margin="0,0,0,12"/>
+                <TextBlock Text="Use an authenticator app like Google Authenticator, Microsoft Authenticator, or Authy to scan this QR code:"
+                           Style="{StaticResource MutedTextStyle}" 
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,16"/>
+
+                <!-- QR Code Display -->
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                        CornerRadius="8" Padding="16" Margin="0,0,0,16" HorizontalAlignment="Center">
+                    <Grid Width="250" Height="250">
+                        <!-- Loading State -->
+                        <TextBlock Text="Generating QR code..."
+                                   Style="{StaticResource MutedTextStyle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+
+                        <!-- QR Code Image -->
+                        <Image Source="{Binding QrCodeImage}"
+                               Visibility="{Binding QrCodeImage, Converter={StaticResource NullToVisibility}}"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                        <!-- Error State -->
+                        <TextBlock Text="Failed to generate QR code"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Secret Key Display -->
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                        CornerRadius="8" Padding="12" Margin="0,0,0,16" Background="{DynamicResource SecondaryBackgroundBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Can't scan? Enter this code manually:"
+                                   Style="{StaticResource SmallMutedTextStyle}" 
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding SharedKey}"
+                                   FontFamily="Consolas,Courier New"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource ForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Step 2: Backup Codes -->
+                <TextBlock Text="Step 2: Save Backup Codes" 
+                           Style="{StaticResource SubheadingStyle}" 
+                           Margin="0,0,0,12"/>
+                <TextBlock Text="Save these backup codes in a safe place. Each code can be used once if you lose access to your authenticator app."
+                           Style="{StaticResource MutedTextStyle}" 
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,12"/>
+
+                <!-- Backup Codes Display -->
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                        CornerRadius="8" Padding="12" Margin="0,0,0,16" Background="{DynamicResource SecondaryBackgroundBrush}"
+                        Visibility="{Binding ShowBackupCodes, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding RecoveryCodesMessage}"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+
+                        <Button Content="Generate Recovery Codes"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding GenerateRecoveryCodesCommand}"
+                                Margin="0,0,0,12"
+                                Visibility="{Binding HasRecoveryCodes, Converter={StaticResource InverseBoolToVis}}"/>
+
+                        <Button Content="Copy Recovery Codes"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding CopyRecoveryCodesCommand}"
+                                Margin="0,0,0,12"
+                                Visibility="{Binding HasRecoveryCodes, Converter={StaticResource BoolToVis}}"/>
+
+                        <ItemsControl ItemsSource="{Binding RecoveryCodeItems}"
+                                      Visibility="{Binding HasRecoveryCodes, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource BackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="10"
+                                            Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding}"
+                                                   FontFamily="Consolas,Courier New"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource ForegroundBrush}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Margin="0,0,0,16">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowBackupCodes}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <!-- Step 3: Verification -->
+                    <TextBlock Text="Step 3: Verify Setup" 
+                               Style="{StaticResource SubheadingStyle}" 
+                               Margin="0,0,0,12"/>
+                    <TextBlock Text="Enter the 6-digit code from your authenticator app to complete the setup:"
+                               Style="{StaticResource MutedTextStyle}" 
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"/>
+
+                    <!-- Verification Code Input -->
+                    <TextBlock Text="Verification Code" 
+                               Style="{StaticResource SmallMutedTextStyle}" 
+                               Margin="0,0,0,8"/>
+                    <TextBox Style="{StaticResource FormTextBoxStyle}"
+                             Text="{Binding VerificationCode, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="16,12"
+                             HorizontalContentAlignment="Center"
+                             Margin="0,0,0,16"
+                             MaxLength="6"
+                             FontSize="18"
+                             IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"/>
+
+                    <!-- Error Message -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{DynamicResource ErrorBrush}"
+                               TextWrapping="Wrap"
+                               FontSize="13"
+                               Margin="0,0,0,16"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <!-- Success Message -->
+                    <TextBlock Text="{Binding SuccessMessage}"
+                               Foreground="#4ADE80"
+                               TextWrapping="Wrap"
+                               FontSize="13"
+                               Margin="0,0,0,16"
+                               Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <!-- Buttons -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Cancel"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Grid.Column="0"
+                                Command="{Binding CancelCommand}"
+                                IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"/>
+
+                        <Button Grid.Column="2"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding VerifyAndEnableCommand}"
+                                IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}">
+                            <TextBlock FontSize="14" FontWeight="Medium">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Enable 2FA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                                <Setter Property="Text" Value="Verifying..."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,16" Visibility="{Binding ShowBackupCodes, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding SuccessMessage}"
+                               Foreground="#4ADE80"
+                               TextWrapping="Wrap"
+                               FontSize="13"
+                               Margin="0,0,0,12"
+                               Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <TextBlock Text="Recovery codes are shown once. Save them before closing this window."
+                               Style="{StaticResource MutedTextStyle}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"/>
+
+                    <Button Content="I Saved These Codes"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding CancelCommand}"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

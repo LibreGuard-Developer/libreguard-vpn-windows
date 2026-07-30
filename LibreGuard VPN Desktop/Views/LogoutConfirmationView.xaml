@@ -1,0 +1,53 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.LogoutConfirmationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="clr-namespace:LibreGuard_VPN_Desktop.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="400" d:DesignHeight="300"
+             d:DataContext="{d:DesignInstance Type=viewmodels:LogoutConfirmationViewModel}">
+
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <StackPanel Margin="32" VerticalAlignment="Center">
+            
+            <!-- Icon -->
+            <Border Width="64" Height="64" CornerRadius="32" 
+                    Background="{DynamicResource DestructiveLightBrush}" 
+                    HorizontalAlignment="Center" Margin="0,0,0,24">
+                <!-- Use a hook arrow to indicate sign-out action -->
+                <TextBlock Text="&#x21AA;" FontSize="32" 
+                           FontFamily="Segoe UI Symbol, Segoe UI Emoji" 
+                           Foreground="{DynamicResource DestructiveBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Text Content -->
+            <TextBlock Text="Sign Out?" 
+                       Style="{StaticResource HeadingStyle}" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,12"/>
+            
+            <TextBlock Text="Are you sure you want to sign out of LibreGuard VPN? You will need to sign in again to connect to our secure servers."
+                       Style="{StaticResource MutedTextStyle}" 
+                       TextWrapping="Wrap" 
+                       TextAlignment="Center"
+                       Margin="0,0,0,32"/>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Stay Signed In" 
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="160" Margin="0,0,12,0"/>
+                
+                <Button Content="Yes, Sign Out" 
+                        Command="{Binding ConfirmCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Background="{DynamicResource DestructiveBrush}"
+                        Width="160"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

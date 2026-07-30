@@ -1,0 +1,53 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Core palette -->
+    <Color x:Key="PrimaryColor">#1570EF</Color>
+    <Color x:Key="PrimaryForegroundColor">#FFFFFF</Color>
+    <Color x:Key="BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="ForegroundColor">#1A1A1A</Color>
+    <Color x:Key="CardColor">#F8FAFC</Color>
+    <Color x:Key="CardForegroundColor">#1A1A1A</Color>
+    <Color x:Key="SecondaryColor">#E2E8F0</Color>
+    <Color x:Key="SecondaryForegroundColor">#1A1A1A</Color>
+    <Color x:Key="MutedColor">#F1F5F9</Color>
+    <Color x:Key="MutedForegroundColor">#64748B</Color>
+    <Color x:Key="BorderColor">#261570EF</Color>
+    <Color x:Key="DestructiveColor">#EF4444</Color>
+    <Color x:Key="DestructiveForegroundColor">#FFFFFF</Color>
+    <Color x:Key="ErrorColor">#EF4444</Color>
+    <Color x:Key="WarningColor">#F59E0B</Color>
+
+    <!-- VPN status colors -->
+    <Color x:Key="StatusConnectedColor">#10B981</Color>
+    <Color x:Key="StatusConnectingColor">#F59E0B</Color>
+    <Color x:Key="StatusDisconnectedColor">#94A3B8</Color>
+
+    <!-- SolidColorBrushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{StaticResource PrimaryForegroundColor}"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}"/>
+    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}"/>
+    <SolidColorBrush x:Key="CardForegroundBrush" Color="{StaticResource CardForegroundColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="{StaticResource MutedColor}"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{StaticResource SecondaryForegroundColor}"/>
+    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}"/>
+    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{StaticResource MutedForegroundColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+    <SolidColorBrush x:Key="DestructiveBrush" Color="{StaticResource DestructiveColor}"/>
+    <SolidColorBrush x:Key="DestructiveForegroundBrush" Color="{StaticResource DestructiveForegroundColor}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="StatusConnectedBrush" Color="{StaticResource StatusConnectedColor}"/>
+    <SolidColorBrush x:Key="StatusConnectingBrush" Color="{StaticResource StatusConnectingColor}"/>
+    <SolidColorBrush x:Key="StatusDisconnectedBrush" Color="{StaticResource StatusDisconnectedColor}"/>
+
+    <!-- Semi-transparent accent brushes -->
+    <SolidColorBrush x:Key="PrimaryLightBrush" Color="#1A1570EF"/>
+    <SolidColorBrush x:Key="PrimaryMediumBrush" Color="#331570EF"/>
+    <SolidColorBrush x:Key="DestructiveLightBrush" Color="#1AEF4444"/>
+    <SolidColorBrush x:Key="StatusConnectedLightBrush" Color="#1A10B981"/>
+    <SolidColorBrush x:Key="StatusConnectingLightBrush" Color="#1AF59E0B"/>
+    <SolidColorBrush x:Key="StatusDisconnectedLightBrush" Color="#1A94A3B8"/>
+</ResourceDictionary>

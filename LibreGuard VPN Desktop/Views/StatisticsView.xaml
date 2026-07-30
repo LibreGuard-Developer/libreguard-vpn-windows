@@ -1,0 +1,302 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.StatisticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:LibreGuard_VPN_Desktop.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="800">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,28,32,32">
+
+            <!-- Header -->
+            <TextBlock Text="Statistics" Style="{StaticResource HeadingXLStyle}" />
+            <TextBlock Text="Monitor your VPN usage and performance"
+                       Style="{StaticResource MutedTextStyle}" Margin="0,4,0,0" />
+
+            <!-- Period selector -->
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                <Border Background="{DynamicResource MutedBrush}" CornerRadius="8" Padding="4">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="Day" GroupName="Period"
+                                     Style="{StaticResource SegmentedButtonStyle}"
+                                     IsChecked="{Binding Period, Converter={StaticResource EqualToBool}, ConverterParameter=day}"
+                                     Tag="day" />
+                        <RadioButton Content="Week" GroupName="Period"
+                                     Style="{StaticResource SegmentedButtonStyle}"
+                                     IsChecked="{Binding Period, Converter={StaticResource EqualToBool}, ConverterParameter=week}"
+                                     Tag="week" />
+                        <RadioButton Content="Month" GroupName="Period"
+                                     Style="{StaticResource SegmentedButtonStyle}"
+                                     IsChecked="{Binding Period, Converter={StaticResource EqualToBool}, ConverterParameter=month}"
+                                     Tag="month" />
+                        <RadioButton Content="Year" GroupName="Period"
+                                     Style="{StaticResource SegmentedButtonStyle}"
+                                     IsChecked="{Binding Period, Converter={StaticResource EqualToBool}, ConverterParameter=year}"
+                                     Tag="year" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Overview stat cards -->
+            <UniformGrid Rows="1" Columns="4" Margin="0,20,0,0">
+                <!-- Total Data -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}">
+                                <TextBlock Text="&#x1F4CA;" FontSize="22" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           Foreground="{DynamicResource PrimaryBrush}" />
+                            </Border>
+                            <TextBlock Text="Total Data" Style="{StaticResource MutedTextStyle}"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0"
+                                   Text="{Binding TotalDataGb, StringFormat={}{0:F1} GB}" />
+                        <TextBlock Text="{Binding PeriodLabel}" Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </controls:RippleDecorator>
+
+                <!-- Total Connections -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardStyle}" Margin="6,0,6,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}">
+                                <TextBlock Text="&#x1F517;" FontSize="22" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           Foreground="{DynamicResource PrimaryBrush}" />
+                            </Border>
+                            <TextBlock Text="Connections" Style="{StaticResource MutedTextStyle}"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding TotalConnections}" Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0" />
+                        <TextBlock Text="{Binding PeriodLabel}" Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </controls:RippleDecorator>
+
+                <!-- Avg Session -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardStyle}" Margin="6,0,6,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}">
+                                <TextBlock Text="&#x23F1;" FontSize="22" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           Foreground="{DynamicResource PrimaryBrush}" />
+                            </Border>
+                            <TextBlock Text="Avg Session" Style="{StaticResource MutedTextStyle}"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0"
+                                   Text="{Binding AvgSessionHours, StringFormat={}{0:F1} hrs}" />
+                        <TextBlock Text="Average duration" Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </controls:RippleDecorator>
+
+                <!-- Avg Daily Download -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardStyle}" Margin="12,0,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}">
+                                <TextBlock Text="&#x2B07;" FontSize="22" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           Foreground="{DynamicResource PrimaryBrush}" />
+                            </Border>
+                            <TextBlock Text="Avg Download" Style="{StaticResource MutedTextStyle}"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0"
+                                   Text="{Binding AvgDailyDownloadMb, StringFormat={}{0:F0} MB}" />
+                        <TextBlock Text="Per day" Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </controls:RippleDecorator>
+            </UniformGrid>
+
+            <!-- Charts row -->
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Data Usage Bar Chart -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardLargeStyle}" Grid.Column="0">
+                    <StackPanel>
+                        <TextBlock Text="Data Usage" Style="{StaticResource HeadingStyle}" />
+                        <TextBlock Text="Download and upload traffic by day"
+                                   Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+
+                        <!-- Bar chart visualisation -->
+                        <ItemsControl ItemsSource="{Binding DataUsageByDay}" Margin="0,20,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel HorizontalAlignment="Center" Margin="4,0">
+                                        <!-- Bars container -->
+                                        <Grid Height="160" VerticalAlignment="Bottom">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="4" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Download bar -->
+                                            <Border Grid.Column="0" CornerRadius="4,4,0,0"
+                                                    Background="{DynamicResource PrimaryBrush}"
+                                                    VerticalAlignment="Bottom"
+                                                    Width="16" Opacity="0.8"
+                                                    Height="{Binding DownloadMb, Converter={StaticResource DataBarHeight}, ConverterParameter=700}" />
+
+                                            <!-- Upload bar -->
+                                            <Border Grid.Column="2" CornerRadius="4,4,0,0"
+                                                    Background="{DynamicResource StatusConnectedBrush}"
+                                                    VerticalAlignment="Bottom"
+                                                    Width="16" Opacity="0.8"
+                                                    Height="{Binding UploadMb, Converter={StaticResource DataBarHeight}, ConverterParameter=700}" />
+                                        </Grid>
+
+                                        <!-- Day label -->
+                                        <TextBlock Text="{Binding Day}" HorizontalAlignment="Center"
+                                                   Style="{StaticResource SmallMutedTextStyle}" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Legend -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource PrimaryBrush}" Opacity="0.8" />
+                            <TextBlock Text="Download" Style="{StaticResource SmallMutedTextStyle}" Margin="6,0,16,0" />
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource StatusConnectedBrush}" Opacity="0.8" />
+                            <TextBlock Text="Upload" Style="{StaticResource SmallMutedTextStyle}" Margin="6,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </controls:RippleDecorator>
+
+                <!-- Server Usage Pie-style -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardLargeStyle}" Grid.Column="2">
+                    <StackPanel>
+                        <TextBlock Text="Server Usage" Style="{StaticResource HeadingStyle}" />
+                        <TextBlock Text="Most used locations"
+                                   Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding ServerUsage}" Margin="0,20,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,6">
+                                        <DockPanel>
+                                            <TextBlock Text="{Binding ServerName}" DockPanel.Dock="Left"
+                                                       Style="{StaticResource SubheadingStyle}" />
+                                            <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                       Style="{StaticResource MutedTextStyle}"
+                                                       Text="{Binding Percentage, StringFormat={}{0:F0}%}" />
+                                        </DockPanel>
+                                        <ProgressBar Value="{Binding Percentage}" Maximum="100"
+                                                     Height="6" Margin="0,6,0,0"
+                                                     Foreground="{DynamicResource PrimaryBrush}"
+                                                     Background="{DynamicResource MutedBrush}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </controls:RippleDecorator>
+            </Grid>
+
+            <!-- Connection history row -->
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Connection Duration Chart -->
+                <controls:RippleDecorator Style="{StaticResource RippleCardLargeStyle}" Grid.Column="0">
+                    <StackPanel>
+                        <TextBlock Text="Connection Duration" Style="{StaticResource HeadingStyle}" />
+                        <TextBlock Text="Session length by date"
+                                   Style="{StaticResource SmallMutedTextStyle}" Margin="0,4,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding ConnectionHistory}" Margin="0,20,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel HorizontalAlignment="Center" Margin="4,0">
+                                        <Grid Height="120" VerticalAlignment="Bottom">
+                                            <Border CornerRadius="4,4,0,0"
+                                                    Background="{DynamicResource StatusConnectingBrush}"
+                                                    VerticalAlignment="Bottom"
+                                                    Width="28" Opacity="0.7"
+                                                    Height="{Binding DurationHours, Converter={StaticResource DataBarHeight}, ConverterParameter=10}" />
+                                        </Grid>
+                                        <TextBlock Text="{Binding Date}" HorizontalAlignment="Center"
+                                                   Style="{StaticResource SmallMutedTextStyle}" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </controls:RippleDecorator>
+
+                <!-- Download / Upload summary -->
+                <StackPanel Grid.Column="2">
+                    <controls:RippleDecorator Style="{StaticResource RippleCardLargeStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBadgeStyle}">
+                                    <TextBlock Text="&#x2B07;" FontSize="22" 
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Segoe UI Emoji, Segoe UI Symbol" />
+                                </Border>
+                                <TextBlock Text="Total Download" Style="{StaticResource MutedTextStyle}"
+                                           VerticalAlignment="Center" Margin="8,0,0,0" />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0"
+                                       Text="{Binding TotalDownloadGb, StringFormat={}{0:F2} GB}" />
+                        </StackPanel>
+                    </controls:RippleDecorator>
+
+                    <controls:RippleDecorator Style="{StaticResource RippleCardLargeStyle}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBadgeStyle}">
+                                    <TextBlock Text="&#x2B06;" FontSize="22" 
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Segoe UI Emoji, Segoe UI Symbol" />
+                                </Border>
+                                <TextBlock Text="Total Upload" Style="{StaticResource MutedTextStyle}"
+                                           VerticalAlignment="Center" Margin="8,0,0,0" />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource LargeValueStyle}" Margin="0,12,0,0"
+                                       Text="{Binding TotalUploadGb, StringFormat={}{0:F2} GB}" />
+                        </StackPanel>
+                    </controls:RippleDecorator>
+                </StackPanel>
+            </Grid>
+
+            <!-- Information Footer -->
+            <Border Background="{DynamicResource MutedBrush}" CornerRadius="12" Padding="20" Margin="0,32,0,0" Opacity="0.8">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x2139;" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource PrimaryBrush}" />
+                    <TextBlock Text="All statistics are stored locally on your device" Style="{StaticResource SmallMutedTextStyle}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

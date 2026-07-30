@@ -1,0 +1,17 @@
+Microsoft Edge WebView2 Evergreen Bootstrapper
+==============================================
+
+Component: Microsoft Edge WebView2 Evergreen Bootstrapper
+Version: Evergreen
+Payload: MicrosoftEdgeWebView2Setup.exe
+Source: https://go.microsoft.com/fwlink/p/?LinkId=2124703
+
+WebView2 is a Microsoft component. Its SDK/package and the Microsoft Edge
+WebView2 Runtime remain subject to Microsoft's license and redistribution
+terms; they are not relicensed under LibreGuard's GPL license.
+
+Microsoft WebView2 distribution documentation:
+https://learn.microsoft.com/microsoft-edge/webview2/concepts/distribution
+
+Microsoft Services Agreement:
+https://www.microsoft.com/servicesagreement

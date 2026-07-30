@@ -1,0 +1,238 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.SidebarView"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:converters="clr-namespace:LibreGuard_VPN_Desktop.Converters"
+         mc:Ignorable="d"
+         d:DesignWidth="288" d:DesignHeight="700">
+
+<UserControl.Resources>
+    <converters:ConnectionStatusToBrushConverter x:Key="StatusToBrush"/>
+    <converters:EqualityToVisibilityConverter x:Key="EqualToVis"/>
+
+    <!-- Radial gradient opacity mask to fade edges and hide white halo -->
+    <RadialGradientBrush x:Key="LogoOpacityMask" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <GradientStop Color="White" Offset="0"/>
+        <GradientStop Color="White" Offset="0.97"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </RadialGradientBrush>
+</UserControl.Resources>
+
+<Border Background="{DynamicResource CardBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
+        BorderThickness="0,0,1,0"
+        Width="288">
+    <DockPanel LastChildFill="True">
+
+        <!-- ??? Logo & Brand ??? -->
+        <Border DockPanel.Dock="Top"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24">
+            <StackPanel Orientation="Horizontal">
+                <!-- Logo with opacity mask to eliminate white halo -->
+                <Border Width="48" Height="48" Background="Transparent">
+                    <Image Source="pack://application:,,,/Assets/Images/LibreGuard_logo_cropped_V3.ico" 
+                           Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"
+                           OpacityMask="{StaticResource LogoOpacityMask}"
+                           SnapsToDevicePixels="True"/>
+                </Border>
+                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="LibreGuard" FontSize="20" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ForegroundBrush}"/>
+                    <TextBlock Text="VPN Protection" Style="{StaticResource SmallMutedTextStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ??? Connection Status Card ??? -->
+        <Border DockPanel.Dock="Top"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="16">
+            <Border x:Name="StatusCard"
+                    CornerRadius="12"
+                    Padding="16"
+                    BorderThickness="1"
+                    BorderBrush="{Binding Dashboard.Status, Converter={StaticResource StatusToBrush}}"
+                    Cursor="Hand"
+                    MouseLeftButtonUp="StatusCard_MouseLeftButtonUp">
+                <Border.Background>
+                    <SolidColorBrush Color="{Binding Dashboard.Status, Converter={StaticResource StatusToBrush}}" Opacity="0.1"/>
+                </Border.Background>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Status icon circle -->
+                        <Border Width="40" Height="40" CornerRadius="20">
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding Dashboard.Status, Converter={StaticResource StatusToBrush}}" Opacity="0.15"/>
+                            </Border.Background>
+                            <Grid>
+                                <!-- Connected Image Flag -->
+                                <Image Source="{Binding Dashboard.ConnectedFlagUrl}" Width="24" Height="18" Stretch="UniformToFill"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{Binding Dashboard.Status, Converter={StaticResource EqualToVis}, ConverterParameter=Connected}">
+                                    <Image.Clip>
+                                        <RectangleGeometry Rect="0,0,24,18" RadiusX="2" RadiusY="2"/>
+                                    </Image.Clip>
+                                </Image>
+                                
+                                <!-- Fallback/Default Icon (Shield) -->
+                                <TextBlock Text="&#x1F6E1;" FontSize="18" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <!-- Show shield if not connected OR if connected but no flag URL -->
+                                                <DataTrigger Binding="{Binding Dashboard.Status}" Value="Disconnected">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Dashboard.Status}" Value="Connecting">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Dashboard.Status}" Value="Disconnecting">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Dashboard.Status}" Value="Reconnecting">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Dashboard.Status}" Value="Connected"/>
+                                                        <Condition Binding="{Binding Dashboard.ConnectedFlagUrl}" Value="{x:Null}"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Dashboard.StatusText}"
+                                       FontSize="14" FontWeight="Medium"
+                                       Foreground="{Binding Dashboard.Status, Converter={StaticResource StatusToBrush}}"/>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Dashboard.Status}" Value="Disconnected">
+                                               <Setter Property="Text" Value="Tap to connect"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Dashboard.Status}" Value="Connected">
+                                                <Setter Property="Text">
+                                                    <Setter.Value>
+                                                        <Binding Path="Dashboard.ConnectedCity">
+                                                            <Binding.StringFormat>{0}</Binding.StringFormat>
+                                                        </Binding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Dashboard.Status}" Value="Connecting">
+                                                <Setter Property="Text" Value="Connecting..."/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Dashboard.Status}" Value="Disconnecting">
+                                                <Setter Property="Text" Value="Disconnecting..."/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Dashboard.Status}" Value="Reconnecting">
+                                                <Setter Property="Text" Value="Reconnecting..."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Speed + time (visible only when connected) -->
+                    <Border Margin="0,12,0,0" Padding="0,12,0,0"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
+                            Visibility="{Binding Dashboard.Status, Converter={StaticResource EqualToVis}, ConverterParameter=Connected}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0">
+                        <TextBlock Text="&#x1F4F6;" FontSize="11" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Dashboard.DownloadSpeed, StringFormat={}{0:F1} Mbps}"
+                                           FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,0"/>
+                    </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Dashboard.ConnectionTime}"
+                                       FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Border>
+
+            <!-- ??? Logout (bottom) ??? -->
+            <Border DockPanel.Dock="Bottom"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16">
+                <Button Style="{StaticResource DestructiveGhostButtonStyle}"
+                        Command="{Binding RequestLogoutCommand}"
+                        HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Use a hook arrow to indicate sign-out action -->
+                        <TextBlock Text="&#x21AA;" FontSize="16" FontFamily="Segoe UI Symbol, Segoe UI Emoji" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Sign Out" FontSize="14" FontWeight="Medium"/>
+                    </StackPanel>
+                </Button>
+            </Border>
+
+            <!-- ??? Navigation Items ??? -->
+            <StackPanel Margin="16" VerticalAlignment="Top">
+                <RadioButton Style="{StaticResource NavItemStyle}"
+                             IsChecked="{Binding ActiveTab, Converter={StaticResource EqualToBool}, ConverterParameter=home}"
+                              Command="{Binding NavigateToTabCommand}" CommandParameter="home"
+                              Margin="0,2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#x1F6E1;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Dashboard" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <RadioButton Style="{StaticResource NavItemStyle}"
+                             IsChecked="{Binding ActiveTab, Converter={StaticResource EqualToBool}, ConverterParameter=servers}"
+                              Command="{Binding NavigateToTabCommand}" CommandParameter="servers"
+                              Margin="0,2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#x1F310;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Servers" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <RadioButton Style="{StaticResource NavItemStyle}"
+                             IsChecked="{Binding ActiveTab, Converter={StaticResource EqualToBool}, ConverterParameter=statistics}"
+                              Command="{Binding NavigateToTabCommand}" CommandParameter="statistics"
+                              Margin="0,2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#x1F4C8;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Statistics" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <RadioButton Style="{StaticResource NavItemStyle}"
+                             IsChecked="{Binding ActiveTab, Converter={StaticResource EqualToBool}, ConverterParameter=settings}"
+                              Command="{Binding NavigateToTabCommand}" CommandParameter="settings"
+                              Margin="0,2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#x2699;&#xFE0F;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Settings" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+
+        </DockPanel>
+    </Border>
+</UserControl>

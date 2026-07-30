@@ -1,0 +1,52 @@
+<UserControl x:Class="LibreGuard_VPN_Desktop.Views.TwoFactorDisableConfirmationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="clr-namespace:LibreGuard_VPN_Desktop.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="400" d:DesignHeight="300"
+             d:DataContext="{d:DesignInstance Type=viewmodels:TwoFactorDisableConfirmationViewModel}">
+
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <StackPanel Margin="32" VerticalAlignment="Center">
+            
+            <!-- Icon -->
+            <Border Width="64" Height="64" CornerRadius="32" 
+                    Background="{DynamicResource DestructiveLightBrush}" 
+                    HorizontalAlignment="Center" Margin="0,0,0,24">
+                <TextBlock Text="&#x26A0;" FontSize="32" 
+                           FontFamily="Segoe UI Emoji, Segoe UI Symbol" 
+                           Foreground="{DynamicResource DestructiveBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Text Content -->
+            <TextBlock Text="Disable 2FA?" 
+                       Style="{StaticResource HeadingStyle}" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,12"/>
+            
+            <TextBlock Text="Are you sure you want to disable two-factor authentication? This will make your account significantly less secure."
+                       Style="{StaticResource MutedTextStyle}" 
+                       TextWrapping="Wrap" 
+                       TextAlignment="Center"
+                       Margin="0,0,0,32"/>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Keep it enabled" 
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="160" Margin="0,0,12,0"/>
+                
+                <Button Content="Yes, disable" 
+                        Command="{Binding ConfirmCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Background="{DynamicResource DestructiveBrush}"
+                        Width="160"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

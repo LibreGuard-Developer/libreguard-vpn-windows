@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="LibreGuard VPN Desktop/LibreGuard VPN Desktop.csproj" />
+  <Project Path="LibreGuard VPN Desktop.Tests/LibreGuard VPN Desktop.Tests.csproj" />
+  <Project Path="LibreGuard.Installer/LibreGuard.Installer.csproj" />
+  <Project Path="LibreGuard.SetupHelper/LibreGuard.SetupHelper.csproj" />
+  <Project Path="LibreGuard.VpnService/LibreGuard.VpnService.csproj" />
+  <Project Path="LibreGuard.VpnService.Contracts/LibreGuard.VpnService.Contracts.csproj" />
+</Solution>

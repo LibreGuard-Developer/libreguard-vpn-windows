@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>LibreGuard_VPN_Desktop</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+    <ApplicationIcon>Assets\Images\LibreGuard_logo_cropped_V3.ico</ApplicationIcon>
+    <Company>LibreGuard d.o.o</Company>
+    <Product>LibreGuard VPN</Product>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <GeneratedGoogleOAuthConfigFile>$(BaseIntermediateOutputPath)$(Configuration)\$(TargetFramework)\generated\google-oauth-client.json</GeneratedGoogleOAuthConfigFile>
+    <InjectedGoogleClientId Condition="'$(InjectedGoogleClientId)' == ''">$(LIBREGUARD_GOOGLE_CLIENT_ID)</InjectedGoogleClientId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LibreGuard VPN Desktop.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\AppIdentity.cs" Link="Shared\AppIdentity.cs" />
+    <Compile Include="..\Shared\ShellLinkUtility.cs" Link="Shared\ShellLinkUtility.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="System.Drawing" />
+    <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets/root_ye.pem" />
+    <None Remove="Assets/root_yr.pem" />
+    <None Include="$(GeneratedGoogleOAuthConfigFile)" Link="google-oauth-client.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <EmbeddedResource Include="Assets/root_ye.pem" LogicalName="LibreGuard.Roots.root_ye.pem" />
+    <EmbeddedResource Include="Assets/root_yr.pem" LogicalName="LibreGuard.Roots.root_yr.pem" />
+    <Resource Include="Assets/Images/LibreGuard_logo_cropped_V3.ico" />
+    <Resource Include="Assets/Images/LibreGuard_logo_cropped_V3.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
+    <PackageReference Include="QRCoder" Version="1.5.1" />
+
+  </ItemGroup>
+
+  <Target Name="GenerateGoogleOAuthConfig" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <InjectedGoogleClientId>$([System.String]::Copy('$(InjectedGoogleClientId)').Trim())</InjectedGoogleClientId>
+    </PropertyGroup>
+    <Error
+      Condition="'$(InjectedGoogleClientId)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('$(InjectedGoogleClientId)', '^[^\s]+\.apps\.googleusercontent\.com$', System.Text.RegularExpressions.RegexOptions.IgnoreCase))"
+      Text="Google OAuth client ID must end with .apps.googleusercontent.com." />
+    <Error
+      Condition="'$(InjectedGoogleClientId)' == '' and '$(Configuration)' == 'Release' and '$(AllowMissingGoogleOAuthClientId)' != 'true'"
+      Text="Google OAuth client ID is required for Release builds. Set LIBREGUARD_GOOGLE_CLIENT_ID or pass /p:InjectedGoogleClientId=... before publishing. Pass /p:AllowMissingGoogleOAuthClientId=true only for an intentionally non-runnable OAuth test artifact." />
+    <Warning
+      Condition="'$(InjectedGoogleClientId)' == ''"
+      Text="Google OAuth client ID was not provided for build-time injection. Runtime environment/file fallback remains available, but this artifact will not contain a configured client ID." />
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(GeneratedGoogleOAuthConfigFile)'))" />
+    <WriteLinesToFile
+      File="$(GeneratedGoogleOAuthConfigFile)"
+      Overwrite="true"
+      Encoding="UTF-8"
+      Lines=
+        '{
+  &quot;clientId&quot;: &quot;$(InjectedGoogleClientId)&quot;
+}' />
+  </Target>
+
+</Project>

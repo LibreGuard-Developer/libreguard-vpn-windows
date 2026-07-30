@@ -1,0 +1,50 @@
+OpenVPN Community Windows MSI
+============================
+
+Component: OpenVPN Community Windows MSI
+Version: 2.7.4-I001
+Payload: OpenVPN-Community-amd64.msi
+Source: https://build.openvpn.net/downloads/releases/OpenVPN-2.7.4-I001-amd64.msi
+
+OpenVPN (TM) is distributed under the GNU General Public License, version 2.
+OpenVPN® is a registered trademark of OpenVPN Inc.
+
+OpenVPN upstream license and linking exceptions
+------------------------------------------------
+OpenVPN (TM) -- An Open Source VPN daemon
+Copyright (C) 2002-2026 OpenVPN Inc
+
+OpenVPN is distributed under the GPL license version 2.
+
+Special exception for linking OpenVPN with OpenSSL:
+OpenVPN Inc gives permission to link the code of this program with the
+OpenSSL library (or with modified versions of OpenSSL that use the same
+license as OpenSSL), and distribute linked combinations including the two.
+The GNU General Public License applies to all other code.
+
+Apache 2 linking exception:
+OpenVPN Inc and the contributors permit linking with libraries licensed under
+the Apache License version 2.0, subject to the conditions in the upstream
+OpenVPN COPYING file.
+
+LZO linking exception:
+LZO is Copyright (C) Markus F.X.J. Oberhumer and is licensed under the GPL.
+
+The complete upstream notice is available at:
+https://github.com/OpenVPN/openvpn/blob/v2.7.4/COPYING
+
+OpenVPN GUI
+-----------
+OpenVPN GUI is a Windows graphical frontend for OpenVPN. It is licensed under
+the GNU General Public License, version 2. Copyright notices are retained in
+the upstream project:
+https://github.com/OpenVPN/openvpn-gui/blob/master/COPYING
+
+TAP-Windows6
+------------
+The tap-windows6 source and object code, its NSIS installer, and its MSI
+helper are released under GPLv2. The tap-windows.h header is also available
+under the MIT license. The upstream notice is available at:
+https://github.com/OpenVPN/tap-windows6/blob/master/COPYING
+
+The full GNU GPLv2 text is included in LibreGuard's installer license page.

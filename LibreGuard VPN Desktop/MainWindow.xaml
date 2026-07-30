@@ -1,0 +1,322 @@
+<Window x:Class="LibreGuard_VPN_Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LibreGuard_VPN_Desktop"
+        xmlns:views="clr-namespace:LibreGuard_VPN_Desktop.Views"
+        xmlns:vm="clr-namespace:LibreGuard_VPN_Desktop.ViewModels"
+        mc:Ignorable="d"
+        Title="LibreGuard VPN" Height="820" Width="1200"
+        MinHeight="720" MinWidth="960"
+        WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Assets/Images/LibreGuard_logo_cropped_V3.ico"
+        Background="{DynamicResource BackgroundBrush}">
+
+    <Grid>
+        <!-- ═══ Auth overlay — shown when not authenticated ═══ -->
+        <Grid Visibility="{Binding CurrentAuthScreen, Converter={StaticResource EqualToVis}, ConverterParameter=Authenticated, Mode=OneWay}"
+              Panel.ZIndex="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="288"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <views:SidebarView Grid.Column="0"
+                               DataContext="{Binding}"/>
+
+            <!-- Content area -->
+            <Border Grid.Column="1" Background="{DynamicResource BackgroundBrush}">
+                <Grid>
+                    <!-- Dashboard -->
+                    <views:DashboardView DataContext="{Binding Dashboard}"
+                                         Style="{StaticResource ScreenTransitionStyle}"
+                                         Visibility="{Binding DataContext.ActiveTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=home}"/>
+
+                    <!-- Servers -->
+                    <views:ServerListView DataContext="{Binding ServerList}"
+                                          Style="{StaticResource ScreenTransitionStyle}"
+                                          Visibility="{Binding DataContext.ActiveTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=servers}"/>
+
+                    <!-- Statistics -->
+                    <views:StatisticsView DataContext="{Binding Statistics}"
+                                          Style="{StaticResource ScreenTransitionStyle}"
+                                          Visibility="{Binding DataContext.ActiveTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=statistics}"/>
+
+                    <!-- Settings -->
+                    <views:SettingsView DataContext="{Binding Settings}"
+                                        Style="{StaticResource ScreenTransitionStyle}"
+                                        Visibility="{Binding DataContext.ActiveTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=settings}"/>
+
+                    <!-- Upgrade -->
+                    <views:UpgradeView DataContext="{Binding Upgrade}"
+                                       Style="{StaticResource ScreenTransitionStyle}"
+                                       Visibility="{Binding DataContext.ActiveTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=upgrade}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══ Login screen ═══ -->
+        <views:LoginView DataContext="{Binding Login}"
+                         Panel.ZIndex="10"
+                         Style="{StaticResource ScreenTransitionStyle}"
+                         Visibility="{Binding DataContext.CurrentAuthScreen, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=Login}"/>
+
+        <!-- ═══ Register screen ═══ -->
+        <views:RegisterView DataContext="{Binding Register}"
+                            Panel.ZIndex="10"
+                            Style="{StaticResource ScreenTransitionStyle}"
+                            Visibility="{Binding DataContext.CurrentAuthScreen, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EqualToVis}, ConverterParameter=Register}"/>
+
+        <!-- ═══ Email confirmation screen ═══ -->
+        <Border Panel.ZIndex="10"
+                Background="{DynamicResource BackgroundBrush}"
+                Style="{StaticResource ScreenTransitionStyle}"
+                Visibility="{Binding CurrentAuthScreen, Converter={StaticResource EqualToVis}, ConverterParameter=EmailConfirmation}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400">
+                <Border Width="80" Height="80" CornerRadius="40"
+                        Background="{DynamicResource PrimaryLightBrush}"
+                        HorizontalAlignment="Center" Margin="0,0,0,24">
+                    <TextBlock Text="✉" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Check Your Email" Style="{StaticResource HeadingXLStyle}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                <TextBlock Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Center"
+                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,32">
+                    <Run Text="We've sent a confirmation link to "/>
+                    <Run Text="{Binding RegisteredEmail, Mode=OneWay}" FontWeight="SemiBold"
+                         Foreground="{DynamicResource ForegroundBrush}"/>
+                </TextBlock>
+                <Button Content="I have verified my email"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding ConfirmEmailCommand}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16"/>
+                <Button Content="Back to Login"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Command="{Binding BackToLoginCommand}"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ Forgot password screen ═══ -->
+        <Border Panel.ZIndex="10"
+                Background="{DynamicResource BackgroundBrush}"
+                Style="{StaticResource ScreenTransitionStyle}"
+                Visibility="{Binding CurrentAuthScreen, Converter={StaticResource EqualToVis}, ConverterParameter=ForgotPassword}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400" Margin="0,48">
+                    <Border Width="80" Height="80" CornerRadius="40"
+                            Background="{DynamicResource PrimaryLightBrush}"
+                            HorizontalAlignment="Center" Margin="0,0,0,24">
+                        <TextBlock Text="🔒" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock HorizontalAlignment="Center" Margin="0,0,0,12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource HeadingXLStyle}">
+                                <Setter Property="Text" Value="Reset Password"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ForgotPassword.IsInResetFlow}" Value="True">
+                                        <Setter Property="Text" Value="Choose a New Password"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Center"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,24">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                                <Setter Property="Text" Value="Enter your email address and we'll send you instructions to reset your password."/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ForgotPassword.IsInResetFlow}" Value="True">
+                                        <Setter Property="Text" Value="Enter your new password to finish resetting your account."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBlock Text="Email Address" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,8"/>
+                    <TextBox>
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource FormTextBoxStyle}">
+                                <Setter Property="Text" Value="{Binding ForgotPassword.Email, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Setter Property="IsEnabled" Value="{Binding ForgotPassword.IsLoading, Converter={StaticResource InverseBool}}"/>
+                                <Setter Property="Margin" Value="0,0,0,24"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ForgotPassword.IsInResetFlow}" Value="True">
+                                        <Setter Property="IsReadOnly" Value="True"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <StackPanel Visibility="{Binding ForgotPassword.IsInResetFlow, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="New Password" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,12">
+                            <PasswordBox Style="{StaticResource FormPasswordBoxStyle}" x:Name="ResetPasswordBox"
+                                         Visibility="{Binding ForgotPassword.IsResetNewPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
+                            <TextBox Style="{StaticResource FormTextBoxStyle}"
+                                     Text="{Binding ForgotPassword.ResetNewPassword, UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="{Binding ForgotPassword.IsResetNewPasswordVisible, Converter={StaticResource BoolToVis}}"/>
+                            <TextBlock Text="&#x1F512;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                            <Button HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    Padding="8"
+                                    HorizontalContentAlignment="Center"
+                                    Command="{Binding ForgotPassword.ToggleResetNewPasswordVisibilityCommand}">
+                                <Grid>
+                                    <TextBlock Text="&#x1F441;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <Border Background="{DynamicResource MutedForegroundBrush}" Height="2" Width="20"
+                                            RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border.RenderTransform>
+                                            <RotateTransform Angle="-45"/>
+                                        </Border.RenderTransform>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ForgotPassword.IsResetNewPasswordVisible}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </Grid>
+
+                        <StackPanel Margin="0,0,0,20">
+                            <Grid Margin="0,0,0,8">
+                                <TextBlock Text="Password Strength" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBlock HorizontalAlignment="Right">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SmallMutedTextStyle}">
+                                            <Setter Property="Text" Value="Weak"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ForgotPassword.IsPasswordEmpty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ForgotPassword.ResetPasswordStrength.IsValid}" Value="True">
+                                                    <Setter Property="Text" Value="Strong"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource StatusConnectedBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                            <ProgressBar Value="{Binding ForgotPassword.ResetPasswordStrength.Score, Mode=OneWay}"
+                                         Background="{DynamicResource MutedBrush}"
+                                         BorderThickness="0" Height="4" Maximum="100"/>
+                            <TextBlock Text="Password must be at least 8 characters and include a number and a special character."
+                                       Style="{StaticResource SmallMutedTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Confirm Password" Style="{StaticResource SmallMutedTextStyle}" Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,20">
+                            <PasswordBox Style="{StaticResource FormPasswordBoxStyle}" x:Name="ResetConfirmPasswordBox"
+                                         Visibility="{Binding ForgotPassword.IsResetConfirmPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
+                            <TextBox Style="{StaticResource FormTextBoxStyle}"
+                                     Text="{Binding ForgotPassword.ResetConfirmPassword, UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="{Binding ForgotPassword.IsResetConfirmPasswordVisible, Converter={StaticResource BoolToVis}}"/>
+                            <TextBlock Text="&#x1F512;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                            <Button HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    Padding="8"
+                                    HorizontalContentAlignment="Center"
+                                    Command="{Binding ForgotPassword.ToggleResetConfirmPasswordVisibilityCommand}">
+                                <Grid>
+                                    <TextBlock Text="&#x1F441;" FontSize="16" FontFamily="Segoe UI Emoji, Segoe UI Symbol"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <Border Background="{DynamicResource MutedForegroundBrush}" Height="2" Width="20"
+                                            RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border.RenderTransform>
+                                            <RotateTransform Angle="-45"/>
+                                        </Border.RenderTransform>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ForgotPassword.IsResetConfirmPasswordVisible}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </Grid>
+
+                        <TextBlock Text="Passwords do not match." Foreground="{DynamicResource ErrorBrush}" FontSize="12" Margin="0,-16,0,16">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource SmallMutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding ForgotPassword.IsPasswordMatch}" Value="False"/>
+                                                <Condition Binding="{Binding ForgotPassword.ResetConfirmPassword.Length, Converter={StaticResource EqualToBool}, ConverterParameter=0}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding ForgotPassword.ErrorMessage}"
+                               Foreground="{DynamicResource ErrorBrush}"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,12"
+                               Visibility="{Binding ForgotPassword.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <TextBlock Text="{Binding ForgotPassword.ResetSuccessMessage}"
+                               Foreground="{DynamicResource StatusConnectedBrush}"
+                               HorizontalAlignment="Center"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"
+                               Visibility="{Binding ForgotPassword.IsSuccess, Converter={StaticResource BoolToVis}}"/>
+
+                    <Button>
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                <Setter Property="Command" Value="{Binding ForgotPassword.SendResetLinkCommand}"/>
+                                <Setter Property="Content" Value="Send Reset Link"/>
+                                <Setter Property="IsEnabled" Value="{Binding ForgotPassword.IsLoading, Converter={StaticResource InverseBool}}"/>
+                                <Setter Property="Margin" Value="0,0,0,16"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ForgotPassword.IsInResetFlow}" Value="True">
+                                        <Setter Property="Command" Value="{Binding ForgotPassword.SubmitResetPasswordCommand}"/>
+                                        <Setter Property="Content" Value="Reset Password"/>
+                                        <Setter Property="IsEnabled" Value="{Binding ForgotPassword.CanSubmitResetPassword}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Back to Login"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Command="{Binding BackToLoginCommand}"
+                            HorizontalAlignment="Center"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>

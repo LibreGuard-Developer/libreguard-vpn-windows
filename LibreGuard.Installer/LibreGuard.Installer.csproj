@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>LibreGuard.Installer</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>..\LibreGuard VPN Desktop\Assets\Images\LibreGuard_logo_cropped_V3.ico</ApplicationIcon>
+    <Company>LibreGuard d.o.o</Company>
+    <Product>LibreGuard VPN Installer</Product>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\AppIdentity.cs" Link="Shared\AppIdentity.cs" />
+    <Compile Include="..\Shared\ShellLinkUtility.cs" Link="Shared\ShellLinkUtility.cs" />
+  </ItemGroup>
+
+</Project>
