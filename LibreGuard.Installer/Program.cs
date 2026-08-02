@@ -10,7 +10,7 @@ using LibreGuard.Common.Windows;
 using LibreGuard.Installer;
 
 const string AppName = "LibreGuard VPN";
-const string AppVersion = "1.1.0";
+const string AppVersion = "1.1.1";
 const string AppSupportUrl = "https://libreguard.net/Support";
 const string AppExeName = "LibreGuard VPN Desktop.exe";
 const string AppIconFileName = "LibreGuard_logo_cropped_V3.ico";

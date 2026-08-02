@@ -3,7 +3,7 @@
 ; folder exists and contains the full app/service/installer payload.
 
 #define MyAppName "LibreGuard VPN"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "LibreGuard d.o.o"
 #define BundleRoot "publish\release-bundle"
 #define BundleTempDir "{tmp}\LibreGuard VPN Bundle"
@@ -40,7 +40,7 @@ ChangesAssociations=no
 DisableStartupPrompt=yes
 UsePreviousAppDir=no
 VersionInfoCompany={#MyAppPublisher}
-VersionInfoDescription={#MyAppName} bootstrapper
+VersionInfoDescription={#MyAppName} Installer
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppVersion}.0

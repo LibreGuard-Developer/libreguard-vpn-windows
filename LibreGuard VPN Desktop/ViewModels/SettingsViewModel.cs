@@ -208,7 +208,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private string _appVersion = "1.1.0";
+    private string _appVersion = "1.1.1";
 
     [RelayCommand]
     private void SelectIkeProtocol() => DefaultProtocol = VpnProtocol.IKEv2;

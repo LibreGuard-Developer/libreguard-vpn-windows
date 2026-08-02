@@ -12,9 +12,9 @@
     <ApplicationIcon>Assets\Images\LibreGuard_logo_cropped_V3.ico</ApplicationIcon>
     <Company>LibreGuard d.o.o</Company>
     <Product>LibreGuard VPN</Product>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
     <GeneratedGoogleOAuthConfigFile>$(BaseIntermediateOutputPath)$(Configuration)\$(TargetFramework)\generated\google-oauth-client.json</GeneratedGoogleOAuthConfigFile>
     <InjectedGoogleClientId Condition="'$(InjectedGoogleClientId)' == ''">$(LIBREGUARD_GOOGLE_CLIENT_ID)</InjectedGoogleClientId>
   </PropertyGroup>

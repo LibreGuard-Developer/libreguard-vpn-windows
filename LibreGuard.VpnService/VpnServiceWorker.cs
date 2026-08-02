@@ -545,6 +545,15 @@ internal sealed class VpnServiceWorker : BackgroundService
         ClearTunnelOwner();
         try
         {
+            await _handler.ClearLibreGuardDnsPolicyAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove the private DNS policy after verified VPN teardown");
+        }
+
+        try
+        {
             await _handler.DisableKillSwitchAsync(ct);
         }
         catch (Exception ex)

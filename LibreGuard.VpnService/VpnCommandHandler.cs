@@ -9,6 +9,7 @@ namespace LibreGuard.VpnService;
 /// </summary>
 internal sealed class VpnCommandHandler
 {
+    private const string LibreGuardDnsPolicyComment = "LibreGuard VPN private DNS";
     private static readonly string[] ApprovedTrustedRootThumbprints =
     [
         "A9571557A77DB78FFAC2E97B57B898569039C340", // Root YE
@@ -106,7 +107,12 @@ internal sealed class VpnCommandHandler
     public async Task<(int ExitCode, string Output, string Error)> CreateConnectionAsync(
         string connectionName, string serverAddress, CancellationToken ct)
     {
-        var script = string.Join("\n",
+        return await RunPowerShellAsync(BuildCreateConnectionScript(connectionName, serverAddress), ct);
+    }
+
+    internal static string BuildCreateConnectionScript(string connectionName, string serverAddress)
+    {
+        return string.Join("\n",
             $"Remove-VpnConnection -Name '{connectionName}' -Force -ErrorAction SilentlyContinue",
             "",
             $"Add-VpnConnection -Name '{connectionName}' `",
@@ -114,10 +120,15 @@ internal sealed class VpnCommandHandler
             "    -TunnelType Ikev2 `",
             "    -AuthenticationMethod MachineCertificate `",
             "    -EncryptionLevel Required `",
+            "    -SplitTunneling:$false `",
             "    -RememberCredential `",
-            "    -Force");
-
-        return await RunPowerShellAsync(script, ct);
+            "    -Force",
+            "",
+            // Do not rely on the cmdlet default: the RAS profile must explicitly retain
+            // the remote default gateway setting before we start the connection.
+            $"Set-VpnConnection -Name '{connectionName}' -SplitTunneling:$false -Force -ErrorAction Stop | Out-Null",
+            $"$vpnProfile = Get-VpnConnection -Name '{connectionName}' -ErrorAction Stop",
+            "if ($vpnProfile.SplitTunneling) { throw 'VPN profile unexpectedly has split tunneling enabled.' }");
     }
 
     /// <summary>
@@ -182,8 +193,34 @@ internal sealed class VpnCommandHandler
             "        $actualMetric = if ($configuredInterface) { $configuredInterface.InterfaceMetric } else { '<missing>' }",
             "        throw \"VPN DNS priority verification failed on interface '$InterfaceIndex'. Expected IPv4 interface metric 1, found '$actualMetric'.\"",
             "    }",
+            "    # A connected RAS session is not sufficient: the selected default route must",
+            "    # actually belong to the VPN interface. Some Windows/IKEv2 combinations leave",
+            "    # the physical adapter's default route preferred despite SplitTunneling being false.",
+            "    $vpnDefaultRoutes = @(Get-NetRoute -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue)",
+            "    if ($vpnDefaultRoutes.Count -eq 0) {",
+            "        New-NetRoute -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -NextHop '0.0.0.0' -RouteMetric 1 -PolicyStore ActiveStore -ErrorAction Stop | Out-Null",
+            "        $vpnDefaultRoutes = @(Get-NetRoute -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction Stop)",
+            "    }",
+            "    $vpnDefaultRoutes | Set-NetRoute -RouteMetric 1 -ErrorAction Stop",
+            "    $bestDefaultRoute = Get-NetRoute -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction Stop | Sort-Object @{ Expression = { [int]$_.RouteMetric + [int]$_.InterfaceMetric } }, InterfaceIndex | Select-Object -First 1",
+            "    if (-not $bestDefaultRoute -or [int]$bestDefaultRoute.InterfaceIndex -ne [int]$InterfaceIndex) {",
+            "        $actualInterface = if ($bestDefaultRoute) { $bestDefaultRoute.InterfaceIndex } else { '<missing>' }",
+            "        throw \"VPN full-tunnel verification failed. Expected the preferred IPv4 default route on interface '$InterfaceIndex', found '$actualInterface'.\"",
+            "    }",
+            "    # Interface DNS alone is insufficient on multi-homed Windows hosts: the DNS client can",
+            "    # otherwise select a resolver from a physical adapter. A catch-all NRPT rule pins all",
+            "    # normal DNS resolution to the VPN resolver while this tunnel is active.",
+            $"    $dnsPolicyComment = {QuotePowerShellString(LibreGuardDnsPolicyComment)}",
+            "    Get-DnsClientNrptRule -ErrorAction SilentlyContinue | Where-Object { $_.Comment -eq $dnsPolicyComment } | Remove-DnsClientNrptRule -Force -ErrorAction Stop",
+            "    $nrptRule = Add-DnsClientNrptRule -Namespace '.' -NameServers $DnsServers -Comment $dnsPolicyComment -DisplayName $dnsPolicyComment -PassThru -ErrorAction Stop",
+            "    $configuredNrpt = @($nrptRule.NameServers)",
+            "    if (($configuredNrpt -join ',') -ne ($DnsServers -join ',')) {",
+            "        throw \"VPN DNS policy verification failed. Expected '$($DnsServers -join ',')', found '$($configuredNrpt -join ',')'.\"",
+            "    }",
             "    Get-DnsClientServerAddress -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 | Select-Object InterfaceAlias, InterfaceIndex, AddressFamily, ServerAddresses | Format-Table -AutoSize | Out-String",
             "    $configuredInterface | Select-Object InterfaceAlias, InterfaceIndex, AddressFamily, InterfaceMetric | Format-Table -AutoSize | Out-String",
+            "    $bestDefaultRoute | Select-Object InterfaceAlias, InterfaceIndex, DestinationPrefix, NextHop, RouteMetric, InterfaceMetric | Format-Table -AutoSize | Out-String",
+            "    $nrptRule | Select-Object Namespace, NameServers, Comment | Format-Table -AutoSize | Out-String",
             "}",
             "if ($targetInterfaceIndex) {",
             "    for ($i = 0; $i -lt 30; $i++) {",
@@ -213,6 +250,26 @@ internal sealed class VpnCommandHandler
             "if ($adapter.Status -ne 'Up') { throw \"VPN interface '$connectionName' was found but is not up for DNS configuration. Status: $($adapter.Status), InterfaceIndex: $($adapter.ifIndex)\" }",
             "if (-not $dnsClient) { throw \"VPN interface '$connectionName' did not expose DNS client settings. InterfaceIndex: $($adapter.ifIndex)\" }",
             "Set-LibreGuardDnsPolicy -InterfaceIndex $dnsClient.InterfaceIndex -DnsServers $dnsServers");
+    }
+
+    /// <summary>
+    /// Removes the temporary catch-all NRPT rule used to bind DNS resolution to the VPN.
+    /// This is intentionally independent of adapter cleanup so stale rules are also removed
+    /// after a crash or an interrupted connection attempt.
+    /// </summary>
+    public async Task ClearLibreGuardDnsPolicyAsync(CancellationToken ct)
+    {
+        var (exitCode, output, error) = await RunPowerShellAsync(BuildClearLibreGuardDnsPolicyScript(), ct);
+        if (exitCode != 0)
+            throw new InvalidOperationException($"Failed to remove LibreGuard DNS policy: {error} {output}".Trim());
+    }
+
+    internal static string BuildClearLibreGuardDnsPolicyScript()
+    {
+        return string.Join("\n",
+            $"$dnsPolicyComment = {QuotePowerShellString(LibreGuardDnsPolicyComment)}",
+            "Get-DnsClientNrptRule -ErrorAction SilentlyContinue | Where-Object { $_.Comment -eq $dnsPolicyComment } | Remove-DnsClientNrptRule -Force -ErrorAction Stop",
+            "Clear-DnsClientCache -ErrorAction SilentlyContinue");
     }
 
     /// <summary>

@@ -21,6 +21,13 @@ public sealed class VpnCommandHandlerDnsTests
         Assert.Contains(
             "Set-NetIPInterface -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -AutomaticMetric Disabled -InterfaceMetric 1 -ErrorAction Stop",
             script);
+        Assert.Contains("Get-NetRoute -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0'", script);
+        Assert.Contains("New-NetRoute -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -NextHop '0.0.0.0' -RouteMetric 1 -PolicyStore ActiveStore", script);
+        Assert.Contains("$vpnDefaultRoutes | Set-NetRoute -RouteMetric 1", script);
+        Assert.Contains("VPN full-tunnel verification failed", script);
+        Assert.Contains("Add-DnsClientNrptRule -Namespace '.' -NameServers $DnsServers", script);
+        Assert.Contains("LibreGuard VPN private DNS", script);
+        Assert.Contains("VPN DNS policy verification failed", script);
         Assert.Contains(
             "Get-DnsClientServerAddress -InterfaceIndex $InterfaceIndex -AddressFamily IPv4 -ErrorAction Stop",
             script);
@@ -50,6 +57,29 @@ public sealed class VpnCommandHandlerDnsTests
             "Set-LibreGuardDnsPolicy -InterfaceIndex $dnsClient.InterfaceIndex -DnsServers $dnsServers",
             script);
         Assert.Equal(2, CountOccurrences(script, "Set-LibreGuardDnsPolicy -InterfaceIndex"));
+    }
+
+    [Fact]
+    public void BuildClearLibreGuardDnsPolicyScript_RemovesOnlyLibreGuardPolicy()
+    {
+        var script = VpnCommandHandler.BuildClearLibreGuardDnsPolicyScript();
+
+        Assert.Contains("LibreGuard VPN private DNS", script);
+        Assert.Contains("Get-DnsClientNrptRule", script);
+        Assert.Contains("$_.Comment -eq $dnsPolicyComment", script);
+        Assert.Contains("Remove-DnsClientNrptRule -Force", script);
+        Assert.Contains("Clear-DnsClientCache", script);
+    }
+
+    [Fact]
+    public void BuildCreateConnectionScript_DisablesAndVerifiesSplitTunneling()
+    {
+        var script = VpnCommandHandler.BuildCreateConnectionScript("LibreGuard VPN", "de-multi-2.libreguard.net");
+
+        Assert.Contains("-SplitTunneling:$false", script);
+        Assert.Contains("Set-VpnConnection -Name 'LibreGuard VPN' -SplitTunneling:$false -Force", script);
+        Assert.Contains("Get-VpnConnection -Name 'LibreGuard VPN'", script);
+        Assert.Contains("VPN profile unexpectedly has split tunneling enabled", script);
     }
 
     private static int CountOccurrences(string value, string search)

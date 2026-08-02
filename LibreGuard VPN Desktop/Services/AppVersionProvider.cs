@@ -16,6 +16,6 @@ internal static class AppVersionProvider
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         return version is not null
             ? $"Desktop/{version.Major}.{version.Minor}.{version.Build}"
-            : "Desktop/1.1.0";
+            : "Desktop/1.1.1";
     }
 }
